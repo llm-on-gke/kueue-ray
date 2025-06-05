@@ -67,16 +67,6 @@ spec:
   resourceGroups:
   - coveredResources: [ "cpu", "memory", "nvidia.com/gpu", "ephemeral-storage" ]
     flavors:
-    - name: a3-mega-spot
-      resources:
-      - name: "cpu"
-        nominalQuota: 1000
-      - name: "memory"
-        nominalQuota: 9999Gi
-      - name: "nvidia.com/gpu"
-        nominalQuota: 1000
-      - name: "ephemeral-storage"
-        nominalQuota: 10000Gi
     - name: l4-spot
       resources:
       - name: "cpu"
