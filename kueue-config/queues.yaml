@@ -41,7 +41,7 @@ spec:
   resourceGroups:
   - coveredResources: [ "cpu", "memory", "nvidia.com/gpu", "ephemeral-storage" ]
     flavors:
-    - name: a3-mega-reg
+    - name: a3-mega-spot
       resources:
       - name: "cpu"
         nominalQuota: 1000
@@ -67,7 +67,7 @@ spec:
   resourceGroups:
   - coveredResources: [ "cpu", "memory", "nvidia.com/gpu", "ephemeral-storage" ]
     flavors:
-    - name: a3-mega-reg
+    - name: a3-mega-spot
       resources:
       - name: "cpu"
         nominalQuota: 1000
