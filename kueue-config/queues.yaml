@@ -13,22 +13,17 @@ spec:
   resourceGroups:
   - coveredResources: [ "cpu", "memory", "nvidia.com/gpu", "ephemeral-storage" ]
     flavors:
-    - name: l4-spot
+    - name: default-flavor
       resources:
       - name: "cpu"
-        nominalQuota: 72
+        nominalQuota: 50
       - name: "memory"
-        nominalQuota: 288Gi
+        nominalQuota: 500Gi
       - name: "nvidia.com/gpu"
-        nominalQuota: 6
+        nominalQuota: 0
       - name: "ephemeral-storage"
-        nominalQuota: 200Gi
-    - name: "default-flavor"
-      resources:
-      - name: "cpu"
-        nominalQuota: 100
-      - name: "memory"
         nominalQuota: 1000Gi
+   
   
 
 ---
