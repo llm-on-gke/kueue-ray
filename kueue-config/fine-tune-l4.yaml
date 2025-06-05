@@ -28,6 +28,10 @@ spec:
         gke-gcsfuse/memory-limit: "35Gi"
     spec:
       priorityClassName: low-priority-preempting
+      tolerations:
+               - key: "nvidia.com/gpu"
+                 operator: "Exists"
+                 effect: "NoSchedule"
       containers:
       - name: gpu-job
         imagePullPolicy: Always
