@@ -4,7 +4,9 @@ kind: ClusterQueue
 metadata:
   name: "cq-team-a"
 spec:
-  namespaceSelector: {} # match all.
+  namespaceSelector: 
+   matchLabels:
+    kubernetes.io/metadata.name: team-a # match all.
   preemption:
     reclaimWithinCohort: LowerPriority
     withinClusterQueue: LowerPriority
@@ -21,6 +23,12 @@ spec:
         nominalQuota: 6
       - name: "ephemeral-storage"
         nominalQuota: 200Gi
+    - name: "default-flavor"
+      resources:
+      - name: "cpu"
+        nominalQuota: 100
+      - name: "memory"
+        nominalQuota: 1000Gi
   
 
 ---
@@ -29,7 +37,9 @@ kind: ClusterQueue
 metadata:
   name: "cq-team-b"
 spec:
-  namespaceSelector: {} # match all.
+  namespaceSelector: 
+    matchLabels:
+     kubernetes.io/metadata.name: team-b
   preemption:
     reclaimWithinCohort: LowerPriority
     withinClusterQueue: LowerPriority
@@ -53,7 +63,9 @@ kind: ClusterQueue
 metadata:
   name: "cq-team-c"
 spec:
-  namespaceSelector: {} # match all.
+  namespaceSelector: 
+    matchLabels:
+     kubernetes.io/metadata.name: team-c
   preemption:
     reclaimWithinCohort: LowerPriority
     withinClusterQueue: LowerPriority
