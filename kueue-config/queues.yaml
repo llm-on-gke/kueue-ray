@@ -2,9 +2,9 @@
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
-  name: "standard-cluster-queue"
+  name: "cq-team-a"
 spec:
-  namespaceSelector: {} # match all.
+  namespaceSelector: team-a # match all.
   preemption:
     reclaimWithinCohort: LowerPriority
     withinClusterQueue: LowerPriority
@@ -21,22 +21,39 @@ spec:
         nominalQuota: 6
       - name: "ephemeral-storage"
         nominalQuota: 200Gi
-    - name: default-flavor
-      resources:
-      - name: "cpu"
-        nominalQuota: 100
-      - name: "memory"
-        nominalQuota: 500Gi
-      - name: "ephemeral-storage"
-        nominalQuota: 200Gi
+  
 
 ---
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
-  name: "large-cluster-queue"
+  name: "cq-team-b"
 spec:
-  namespaceSelector: {} # match all.
+  namespaceSelector: team-b # match all.
+  preemption:
+    reclaimWithinCohort: LowerPriority
+    withinClusterQueue: LowerPriority
+  resourceGroups:
+  - coveredResources: [ "cpu", "memory", "nvidia.com/gpu", "ephemeral-storage" ]
+    flavors:
+    - name: a3-mega-reg
+      resources:
+      - name: "cpu"
+        nominalQuota: 1000
+      - name: "memory"
+        nominalQuota: 9999Gi
+      - name: "nvidia.com/gpu"
+        nominalQuota: 1000
+      - name: "ephemeral-storage"
+        nominalQuota: 10000Gi
+    
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: "cq-team-c"
+spec:
+  namespaceSelector: team-c # match all.
   preemption:
     reclaimWithinCohort: LowerPriority
     withinClusterQueue: LowerPriority
@@ -71,7 +88,7 @@ spec:
     namespace: team-a # LocalQueue under llm namespace 
     name: team-a-queue
   spec:
-    clusterQueue: standard-cluster-queue # Point to the ClusterQueue
+    clusterQueue: cq-team-a # Point to the ClusterQueue
 ---
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: LocalQueue
@@ -79,7 +96,7 @@ metadata:
   namespace: team-b # LocalQueue under llm namespace 
   name: team-b-queue
 spec:
-  clusterQueue: standard-cluster-queue # Point to the ClusterQueue
+  clusterQueue: cq-team-b # Point to the ClusterQueue
 ---
 
 apiVersion: kueue.x-k8s.io/v1beta1
@@ -88,4 +105,4 @@ metadata:
   namespace: team-c # LocalQueue under llm namespace 
   name: team-c-queue
 spec:
-  clusterQueue: -cluster-queue # Point to the ClusterQueue
+  clusterQueue: cq-team-c # Point to the ClusterQueue
