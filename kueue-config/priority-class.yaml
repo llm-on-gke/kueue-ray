@@ -1,0 +1,28 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: default-priority-nonpreempting
+value: 10
+preemptionPolicy: Never
+globalDefault: true
+description: "This priority class will not cause other pods to be preempted."
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: low-priority-preempting
+value: 20
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: "This priority class will cause pods with lower priority to be preempted."
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority-preempting
+value: 30
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: "This high priority class will cause other pods to be preempted."

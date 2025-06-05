@@ -1,0 +1,28 @@
+kind: ResourceFlavor
+apiVersion: kueue.x-k8s.io/v1beta1
+metadata:
+  name: "a3-mega-spot"
+spec:
+  nodeLabels:
+    cloud.google.com/gke-nodepool: a3-megagpu-8g-a3megagpupool
+  tolerations:
+  - key: "nvidia.com/gpu"
+    operator: "Exists"
+    effect: NoSchedule
+---
+kind: ResourceFlavor
+apiVersion: kueue.x-k8s.io/v1beta1
+metadata:
+  name: "l4-spot"
+spec:
+  nodeLabels:
+    cloud.google.com/gke-nodepool: l4-node-pool
+  tolerations:
+  - key: "nvidia.com/gpu"
+    operator: "Exists"
+    effect: NoSchedule
+---
+kind: ResourceFlavor
+apiVersion: kueue.x-k8s.io/v1beta1
+metadata:
+  name: "default-flavor"
