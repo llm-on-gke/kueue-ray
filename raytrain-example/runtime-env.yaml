@@ -1,0 +1,20 @@
+py_modules: ["."]
+setup_hook: runtime_env.setup_hook
+env_vars:
+  LD_LIBRARY_PATH: "/usr/local/nvidia/lib64"
+  #NCCL_DEBUG: "INFO"
+  #NCCL_NET: "gIB"
+  NCCL_NET_PLUGIN: "/usr/local/gib/lib64/libnccl-net_internal.so"
+  NCCL_CROSS_NIC: "0"
+  NCCL_NET_GDR_LEVEL: "PIX"
+  NCCL_P2P_NET_CHUNKSIZE: "131072"
+  NCCL_NVLS_CHUNKSIZE: "524288"
+  NCCL_IB_ADAPTIVE_ROUTING: "1"
+  NCCL_IB_QPS_PER_CONNECTION: "4"
+  NCCL_IB_TC: "52"
+  NCCL_IB_FIFO_TC: "84"
+  NCCL_TUNER_CONFIG_PATH: "/usr/local/gib/configs/tuner_config_a3u.txtpb"
+pip:
+  packages:
+    - torch==2.1.0  # or whatever version you need
+    - cupy-cuda12x
