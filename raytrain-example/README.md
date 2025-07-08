@@ -13,6 +13,7 @@ This directory contains example Kubernetes manifests and scripts for running dis
 - `train.py` — Example training script
 - `nccl_allreduce_multigpu.py` — Example NCCL all-reduce script
 - `dws-queues.yaml`, `dws-nodepool-l4.sh` — Supporting files for DWS queue/nodepool setup
+Note: a3ultra examples from Injae's team 
 
 ## Prerequisites
 
@@ -42,8 +43,18 @@ kubectl get raycluter
 Make sure all raycluster workers active with resources requested
 
 ### 2. Submit a Ray Job to static Ray cluster created. 
+#### Instal Ray Job Cli,
 ```sh
-ray job submit   --address http://localhost:8265   --runtime-env runtime-env.yaml   --working-dir .   -- python test_nccl_rdma.py
+pip install "ray[default]"
+```
+#### Port forward Ray cluster service 
+```sh
+kubectl port-forward svc/ray-cluster-head-svc 8265:8265
+```
+
+#### Submit Ray job 
+```sh
+ray job submit   --address http://localhost:8265   --runtime-env runtime-env.yaml   --working-dir .   -- python nccl_allreduce_multigpu.py
 ```
 
 ### 3. Create and Run Independent Rayjob with Ephemeral RayCluster inside. 
@@ -63,14 +74,14 @@ kubectl get pods -l ray.io/job-id
 kubectl logs <job-pod-name>
 ```
 
-### 3. Example Training Scripts
+### 4. Example Training Scripts
 
 - `train.py`: Example PyTorch training script for Ray jobs.
 - `nccl_allreduce_multigpu.py`: Example script for testing NCCL all-reduce across multiple GPUs.
 
 You can modify the job manifests to point to your own scripts or adjust resource requests as needed.
 
-### 4. Clean Up
+### 5. Clean Up
 
 To delete the Ray clusters and jobs:
 ```sh
@@ -85,3 +96,4 @@ kubectl delete -f ray-job-a3ultra.yaml
 - The YAML files are templates and may require customization for your environment (e.g., image, namespace, storage, etc.).
 - Ensure your cluster has the required GPU node pools and quotas.
 - For more information, see the [Ray on Kubernetes documentation](https://docs.ray.io/en/latest/cluster/kubernetes/index.html).
+- Ray Job Cli documentation, see the [Ray Job Cli documentation](https://docs.ray.io/en/latest/cluster/running-applications/job-submission/quickstart.html )
