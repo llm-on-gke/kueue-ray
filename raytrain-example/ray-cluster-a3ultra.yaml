@@ -7,7 +7,7 @@ metadata:
   annotations:
     provreq.kueue.x-k8s.io/maxRunDurationSeconds: "41600" # Max run time in sec
 spec:
-  suspend: false #true ensures all pods start together
+  suspend: true #true ensures all pods start together
   rayVersion: '2.47.0'
   headGroupSpec:
     rayStartParams:
@@ -15,7 +15,7 @@ spec:
     template:
       spec:
         nodeSelector:
-          cloud.google.com/gke-nodepool: "default-pool"
+          cloud.google.com/gke-nodepool: "system"
         containers:
         - name: ray-head
           image: rayproject/ray:2.47.0
@@ -50,11 +50,11 @@ spec:
       num-cpus: "220"
     template:
       metadata:
-        #labels:
-         # kueue.x-k8s.io/queue-name: dws-local-queue
+        labels:
+          kueue.x-k8s.io/queue-name: dws-local-queue
         annotations:
           #provreq.kueue.x-k8s.io/maxRunDurationSeconds: "41600" # Max run time in sec
-          kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
+          #kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
           networking.gke.io/default-interface: 'eth0'
           networking.gke.io/interfaces: |
             [
@@ -71,7 +71,9 @@ spec:
             ]
       spec:
         nodeSelector:
-          cloud.google.com/gke-nodepool: "h200-dws"
+          cloud.google.com/gke-nodepool: "a3-ultragpu-8g-a3-ultragpu-pool"
+        #nodeSelector:
+        #  cloud.google.com/gke-flex-start: "true"
         tolerations:
           - key: "nvidia.com/gpu"
             operator: "Exists"
