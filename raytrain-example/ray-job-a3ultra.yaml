@@ -19,7 +19,7 @@ metadata:
   labels:
     kueue.x-k8s.io/queue-name: dws-local-queue
   annotations:
-    provreq.kueue.x-k8s.io/maxRunDurationSeconds: "21600" #this is the max run time in sec, max is 604800 (7 days)
+    provreq.kueue.x-k8s.io/maxRunDurationSeconds: "41600" #this is the max run time in sec, max is 604800 (7 days)
   name: pytorch-mnist-job
 spec:
   suspend: true
@@ -32,8 +32,19 @@ spec:
     working_dir: "https://github.com/rick-c-goog/kubernetes-engine-samples/archive/ray-train.zip"
     env_vars:
      NUM_WORKERS: "16"
-     CPUS_PER_WORKER: "80"
+     CPUS_PER_WORKER: "12"
      GPUS_PER_WORKER: "1"
+     LD_LIBRARY_PATH: "/usr/local/nvidia/lib64"
+     NCCL_NET_PLUGIN: "/usr/local/gib/lib64/libnccl-net_internal.so"
+     NCCL_CROSS_NIC: "0"
+     NCCL_NET_GDR_LEVEL: "PIX"
+     NCCL_P2P_NET_CHUNKSIZE: "131072"
+     NCCL_NVLS_CHUNKSIZE: "524288"
+     NCCL_IB_ADAPTIVE_ROUTING: "1"
+     NCCL_IB_QPS_PER_CONNECTION: "4"
+     NCCL_IB_TC: "52"
+     NCCL_IB_FIFO_TC: "84"
+     NCCL_TUNER_CONFIG_PATH: "/usr/local/gib/configs/tuner_config_a3u.txtpb"
   rayClusterSpec:
    rayVersion: '2.47.0'
    headGroupSpec:
@@ -42,7 +53,7 @@ spec:
       template:
         spec:
           nodeSelector:
-            cloud.google.com/gke-nodepool: "default-pool"
+            cloud.google.com/gke-nodepool: "system"
           containers:
             - name: ray-head
               image: rayproject/ray:2.47.0 # rayproject/ray-ml:2.41.0.021baf-py39 #
@@ -80,7 +91,7 @@ spec:
      template:
       metadata:
         annotations:
-          kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
+          #kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
           networking.gke.io/default-interface: 'eth0'
           networking.gke.io/interfaces: |
             [
@@ -97,7 +108,7 @@ spec:
             ]
       spec:
         nodeSelector:
-            cloud.google.com/gke-nodepool: "h200-dws"
+            cloud.google.com/gke-nodepool: "a3-ultragpu-8g-a3-ultragpu-pool"
         tolerations:
             - key: "nvidia.com/gpu"
               operator: "Exists"
