@@ -32,6 +32,8 @@ kubectl apply -f ray-cluster-a3mega.yaml
 ```
 
 **A3 Ultra:**
+you may use a3-ultra-flexstart-blueprint to create GKE cluster with Flex Start and Queued Provisioning.
+
 ```sh
 kubectl apply -f ray-cluster-a3ultra.yaml
 ```
