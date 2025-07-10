@@ -59,7 +59,7 @@ spec:
               image: rayproject/ray:2.47.0 # rayproject/ray-ml:2.41.0.021baf-py39 #
               env:
               - name: NUM_WORKERS
-                value: "16"
+                value: "2"
               ports:
                 - containerPort: 6379
                   name: gcs-server

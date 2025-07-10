@@ -4,8 +4,11 @@ py_executable": "uv run"
 setup_hook: runtime_env.uv_runtime_env_hook.hook #runtime_env.setup_hook 
 env_vars:
   LD_LIBRARY_PATH: "/usr/local/nvidia/lib64"
-  #NCCL_DEBUG: "INFO"
+  NCCL_DEBUG: "DEBUG"
   #NCCL_NET: "gIB"
+  NUM_WORKERS: "16"
+  CPUS_PER_WORKER: "12"
+  GPUS_PER_WORKER: "1"
   NCCL_NET_PLUGIN: "/usr/local/gib/lib64/libnccl-net_internal.so"
   NCCL_CROSS_NIC: "0"
   NCCL_NET_GDR_LEVEL: "PIX"
@@ -18,5 +21,6 @@ env_vars:
   NCCL_TUNER_CONFIG_PATH: "/usr/local/gib/configs/tuner_config_a3u.txtpb"
 pip:
   packages:
-    - torch==2.1.0  # or whatever version you need
-    - cupy-cuda12x
+    - torch # or whatever version you need
+    - torchvision
+   # - cupy-cuda12x

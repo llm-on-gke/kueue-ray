@@ -18,7 +18,7 @@ spec:
           cloud.google.com/gke-nodepool: "system"
         containers:
         - name: ray-head
-          image: rayproject/ray:2.47.0
+          image: rayproject/ray:2.44.1-py39-cu128 #rayproject/ray:2.47.0
           ports:
             - containerPort: 6379
               name: gcs-server
@@ -80,7 +80,11 @@ spec:
             effect: "NoSchedule"
         containers:
         - name: ray-worker
-          image: rayproject/ray:2.47.0-gpu
+          image: rayproject/ray:2.44.1-py39-cu128 #rayproject/ray:2.47.0-gpu
+          env:
+           - name: LD_LIBRARY_PATH
+             value: /usr/local/nvidia/lib64
+           
           resources:
             limits:
               cpu: "220"
