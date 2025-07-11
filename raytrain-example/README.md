@@ -22,6 +22,8 @@ Note: a3ultra examples from Injae's team
 - [Ray Operator](https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/ray-cluster-operator.html) installed in your cluster
 - Sufficient GPU quota for A3 Mega or A3 Ultra nodes
 
+- for A3 Flex start cluster provisioning, you can use cluster toolkit blueprints under a3-ultra-flexstart-blueprint. Reference, https://cloud.google.com/ai-hypercomputer/docs/create/gke-ai-hypercompute on how to use cluster toolkit. 
+
 ## Usage
 
 ### 1. Deploy a Ray Cluster
