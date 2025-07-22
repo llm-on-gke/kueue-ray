@@ -29,9 +29,9 @@ spec:
       - torchvision
     working_dir: "https://github.com/rick-c-goog/kubernetes-engine-samples/archive/ray-train.zip"
     env_vars:
-     NUM_WORKERS: "2"
+     NUM_WORKERS: "16"
      CPUS_PER_WORKER: "80"
-     GPUS_PER_WORKER: "8"
+     GPUS_PER_WORKER: "1"
   rayClusterSpec:
    rayVersion: '2.41.0'
    headGroupSpec:
@@ -44,7 +44,7 @@ spec:
               image: rayproject/ray:2.44.1-py39-cu128 # rayproject/ray-ml:2.41.0.021baf-py39 #
               env:
               - name: NUM_WORKERS
-                value: "2"
+                value: "16"
               ports:
                 - containerPort: 6379
                   name: gcs-server

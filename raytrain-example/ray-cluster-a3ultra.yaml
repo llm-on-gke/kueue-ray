@@ -1,0 +1,129 @@
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: pytorch-mnist-cluster
+  labels:
+    kueue.x-k8s.io/queue-name: dws-local-queue
+  annotations:
+    provreq.kueue.x-k8s.io/maxRunDurationSeconds: "41600" # Max run time in sec
+spec:
+  suspend: true #true ensures all pods start together
+  rayVersion: '2.47.0'
+  headGroupSpec:
+    rayStartParams:
+      dashboard-host: '0.0.0.0'
+    template:
+      spec:
+        nodeSelector:
+          cloud.google.com/gke-nodepool: "system"
+        containers:
+        - name: ray-head
+          image: rayproject/ray:2.44.1-py39-cu128 #rayproject/ray:2.47.0
+          ports:
+            - containerPort: 6379
+              name: gcs-server
+            - containerPort: 8265
+              name: dashboard
+            - containerPort: 10001
+              name: client
+          resources:
+            limits:
+              cpu: "2"
+              memory: "5G"
+              ephemeral-storage: "9Gi"
+            requests:
+              cpu: "2"
+              memory: "5G"
+              ephemeral-storage: "9Gi"
+          volumeMounts:
+            - mountPath: /tmp/ray
+              name: ray-logs
+        volumes:
+          - name: ray-logs
+            emptyDir: {}
+  workerGroupSpecs:
+  - replicas: 2
+    minReplicas: 0
+    maxReplicas: 4
+    groupName: gpu-group
+    rayStartParams:
+      num-cpus: "220"
+    template:
+      metadata:
+        labels:
+          kueue.x-k8s.io/queue-name: dws-local-queue
+        annotations:
+          #provreq.kueue.x-k8s.io/maxRunDurationSeconds: "41600" # Max run time in sec
+          #kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
+          networking.gke.io/default-interface: 'eth0'
+          networking.gke.io/interfaces: |
+            [
+              {"interfaceName":"eth0","network":"default"},
+              {"interfaceName":"eth1","network":"gvnic-1"},
+              {"interfaceName":"eth2","network":"rdma-0"},
+              {"interfaceName":"eth3","network":"rdma-1"},
+              {"interfaceName":"eth4","network":"rdma-2"},
+              {"interfaceName":"eth5","network":"rdma-3"},
+              {"interfaceName":"eth6","network":"rdma-4"},
+              {"interfaceName":"eth7","network":"rdma-5"},
+              {"interfaceName":"eth8","network":"rdma-6"},
+              {"interfaceName":"eth9","network":"rdma-7"}
+            ]
+      spec:
+        nodeSelector:
+          cloud.google.com/gke-nodepool: "a3-ultragpu-8g-a3-ultragpu-pool"
+        #nodeSelector:
+        #  cloud.google.com/gke-flex-start: "true"
+        tolerations:
+          - key: "nvidia.com/gpu"
+            operator: "Exists"
+            effect: "NoSchedule"
+        containers:
+        - name: ray-worker
+          image: rayproject/ray:2.44.1-py39-cu128 #rayproject/ray:2.47.0-gpu
+          env:
+           - name: LD_LIBRARY_PATH
+             value: /usr/local/nvidia/lib64
+           
+          resources:
+            limits:
+              cpu: "220"
+              memory: "2800Gi"
+              nvidia.com/gpu: "8"
+              ephemeral-storage: "1000Gi"
+            requests:
+              cpu: "220"
+              memory: "2800Gi"
+              nvidia.com/gpu: "8"
+              ephemeral-storage: "1000Gi"
+          volumeMounts:
+          - name: nvidia
+            mountPath: /usr/local/nvidia
+          - name: gib
+            mountPath: /usr/local/gib
+          - name: shared-memory
+            mountPath: /dev/shm
+          - name: ray-tmp-storage
+            mountPath: /tmp
+        volumes:
+        - name: gib
+          hostPath:
+            path: /home/kubernetes/bin/gib
+        - name: nvidia
+          hostPath:
+            path: /home/kubernetes/bin/nvidia
+        - name: lib64
+          hostPath:
+            path: /lib64
+        - name: shared-memory
+          emptyDir:
+            medium: "Memory"
+            sizeLimit: 250Gi
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: proc-sys
+          hostPath:
+            path: /proc/sys
+        - name: ray-tmp-storage
+          emptyDir: {}
