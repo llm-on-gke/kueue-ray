@@ -1,0 +1,13 @@
+gcloud container node-pools create v6e-4-4 \
+    --location=asia-northeast1 \
+    --cluster=rick-a3-mega-spot1 \
+    --node-locations=asia-northeast1-b \
+    --machine-type=ct6e-standard-4t \
+    --tpu-topology=4x4 \
+    --reservation-affinity=none \
+    --enable-autoscaling \
+    --enable-queued-provisioning \
+    --flex-start \
+    --num-nodes 0 \
+    --min-nodes=0 \
+    --max-nodes=4

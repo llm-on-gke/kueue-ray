@@ -97,6 +97,8 @@ kubectl delete -f ray-job-a3ultra.yaml
 
 ## Notes
 
+- In ray worker ScaleConfig setup number of GPU per worker should be 1 gpu, currently it does not support multi-gpu per worker yet, otherwise, it will alwasy use the first GPU in worker only: https://discuss.ray.io/t/when-to-use-multi-gpus-per-worker-for-a-training-job/15805
+
 - The YAML files are templates and may require customization for your environment (e.g., image, namespace, storage, etc.).
 - Ensure your cluster has the required GPU node pools and quotas.
 - For more information, see the [Ray on Kubernetes documentation](https://docs.ray.io/en/latest/cluster/kubernetes/index.html).
