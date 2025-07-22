@@ -1,0 +1,22 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kueue-rayservices-access
+rules:
+  - apiGroups: ["ray.io"]
+    resources: ["rayservices"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kueue-rayservices-access
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kueue-rayservices-access
+subjects:
+  - kind: ServiceAccount
+    name: kueue-controller-manager
+    namespace: kueue-system
