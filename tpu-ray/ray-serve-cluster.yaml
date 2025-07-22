@@ -1,7 +1,7 @@
 apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
-  name: vllm-tpu
+  name: ray-tpu
 spec:
   headGroupSpec:
     rayStartParams: {}
