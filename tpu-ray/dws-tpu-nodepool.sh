@@ -1,3 +1,5 @@
+##note; GKE cluser need to be 1.32.2-gke.1652000 or later to use flex-start.
+
 gcloud container node-pools create v6e-4-4 \
     --location=asia-northeast1 \
     --cluster=rick-a3-mega-spot1 \
