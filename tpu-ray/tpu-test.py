@@ -9,7 +9,6 @@ ray.init(
     }
 )
 
-
 @ray.remote(resources={"TPU": 4})
 def tpu_cores():
     import jax

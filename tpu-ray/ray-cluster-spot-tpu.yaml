@@ -68,10 +68,12 @@ spec:
         containers:
         - name: ray-worker
           image: rayproject/ray-ml:2.9.0 #rayproject/ray:2.47.0-gpu
-          #env:
-          #- name: LD_LIBRARY_PATH
-          #  value: /usr/local/nvidia/lib64
-           
+          env:
+           - name: JAX_PLATFORMS
+             value: "tpu,cpu" 
+           - name: ENABLE_PJRT_COMPATIBILITY
+             value: "true"
+
           resources:
             limits:
                 cpu: "100"

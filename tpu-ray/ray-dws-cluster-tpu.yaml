@@ -15,7 +15,7 @@ spec:
     template:
       spec:
         nodeSelector:
-          cloud.google.com/gke-nodepool: "default-pool"
+          cloud.google.com/gke-nodepool: "system"
         containers:
         - name: ray-head
           image: rayproject/ray-ml:2.9.0 #rayproject/ray:2.47.0
@@ -42,11 +42,11 @@ spec:
           - name: ray-logs
             emptyDir: {}
   workerGroupSpecs:
-  - replicas: 4
+  - replicas: 1
    
-    minReplicas: 4
-    maxReplicas: 4
-    numOfHosts: 1
+    minReplicas: 1
+    maxReplicas: 1
+    numOfHosts: 2
     groupName: tpu-group
     rayStartParams: {}
       #num-cpus: "220"
@@ -60,9 +60,9 @@ spec:
           
       spec:
         nodeSelector:
-          cloud.google.com/gke-nodepool: "v6e-4-4"
+          cloud.google.com/gke-nodepool: "v6e-2-4"
           cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
-          cloud.google.com/gke-tpu-topology: 2x2
+          cloud.google.com/gke-tpu-topology: 2x4
         #nodeSelector:
         #  cloud.google.com/gke-flex-start: "true"
         #tolerations:
