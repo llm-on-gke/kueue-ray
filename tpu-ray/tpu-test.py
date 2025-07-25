@@ -1,14 +1,5 @@
 import ray
 
-ray.init(
-    runtime_env={
-        "pip": [
-            "jax[tpu]",
-            "-f https://storage.googleapis.com/jax-releases/libtpu_releases.html",
-        ]
-    }
-)
-
 @ray.remote(resources={"TPU": 4})
 def tpu_cores():
     import jax
