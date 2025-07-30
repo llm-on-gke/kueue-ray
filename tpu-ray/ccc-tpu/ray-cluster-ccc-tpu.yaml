@@ -2,12 +2,9 @@ apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
   name: pytorch-mnist-cluster
-  labels:
-    kueue.x-k8s.io/queue-name: dws-local-queue
-  annotations:
-    provreq.kueue.x-k8s.io/maxRunDurationSeconds: "41600" # Max run time in sec
+
 spec:
-  suspend: true #true ensures all pods start together
+  suspend: false #true ensures all pods start together
   rayVersion: '2.47.0'
   headGroupSpec:
     rayStartParams:
@@ -18,7 +15,7 @@ spec:
           cloud.google.com/gke-nodepool: "system"
         containers:
         - name: ray-head
-          image: rayproject/ray-ml:2.9.0 #rayproject/ray:2.47.0
+          image: us-east1-docker.pkg.dev/gpu-launchpad-playground/gke-llm/ray-tpu-jax:latest #rayproject/ray-ml:2.9.0
           ports:
             - containerPort: 6379
               name: gcs-server
@@ -28,11 +25,11 @@ spec:
               name: client
           resources:
             limits:
-              cpu: "2"
+              cpu: "1"
               memory: "2G"
               ephemeral-storage: "9Gi"
             requests:
-              cpu: "2"
+              cpu: "1"
               memory: "2G"
               ephemeral-storage: "9Gi"
           volumeMounts:
@@ -43,8 +40,7 @@ spec:
             emptyDir: {}
   workerGroupSpecs:
   - replicas: 1
-   
-    minReplicas: 1
+    minReplicas: 0
     maxReplicas: 1
     numOfHosts: 2
     groupName: tpu-group
@@ -52,40 +48,45 @@ spec:
       #num-cpus: "220"
     template:
       metadata:
-        labels:
-          kueue.x-k8s.io/queue-name: dws-local-queue
         annotations: {}
           #provreq.kueue.x-k8s.io/maxRunDurationSeconds: "41600" # Max run time in sec
-          #kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
-          
+          #kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"          
       spec:
         nodeSelector:
-          cloud.google.com/gke-nodepool: "v6e-2-4"
+          #cloud.google.com/gke-nodepool: "v6e-2-4"
+          cloud.google.com/compute-class: "ccc-tpu"
           cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
           cloud.google.com/gke-tpu-topology: 2x4
-        #nodeSelector:
-        #  cloud.google.com/gke-flex-start: "true"
-        #tolerations:
-        #  - key: "nvidia.com/gpu"
-        #    operator: "Exists"
-        #    effect: "NoSchedule"
+        hostNetwork: true
+        dnsPolicy: ClusterFirstWithHostNet
         containers:
         - name: ray-worker
-          image: rayproject/ray-ml:2.9.0 #rayproject/ray:2.47.0-gpu
-          #env:
-          # - name: JAX_PLATFORMS
-          #   value: "tpu,cpu" 
-          # - name: ENABLE_PJRT_COMPATIBILITY
-          #  value: "true"
-           
+          image: us-east1-docker.pkg.dev/gpu-launchpad-playground/gke-llm/ray-tpu-jax:latest #rayproject/ray-ml:2.9.0 
+          env:
+           - name: ENABLE_PJRT_COMPATIBILITY
+             value: "true"
+           - name: HUGGING_FACE_HUB_TOKEN
+             valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_api_token
+           - name: JAX_PLATFORMS
+             value: "tpu"
+           #- name: JAX_FORCE_TPU_INIT
+           #  value: "true"
+          #command:
+          #- bash
+          #- -c
+          #- |
+          #  pip install 'jax[tpu]' -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
           resources:
             limits:
-                cpu: "10"
+                cpu: "100"
                 google.com/tpu: "4"
                 ephemeral-storage: 40G
                 memory: 200G
             requests:
-                cpu: "10"
+                cpu: "100"
                 google.com/tpu: "4"
                 ephemeral-storage: 40G
                 memory: 200G

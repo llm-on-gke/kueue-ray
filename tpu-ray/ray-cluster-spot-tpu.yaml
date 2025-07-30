@@ -1,88 +1,77 @@
 apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
-  name: pytorch-mnist-cluster
-
+  name: raycluster-tpu-v6e-multihost
 spec:
-  suspend: false #true ensures all pods start together
-  rayVersion: '2.47.0'
+  rayVersion: '2.46.0'
   headGroupSpec:
-    rayStartParams:
-      dashboard-host: '0.0.0.0'
+    rayStartParams: {}
     template:
       spec:
-        nodeSelector:
-          cloud.google.com/gke-nodepool: "system"
         containers:
         - name: ray-head
-          image: rayproject/ray-ml:2.9.0 #rayproject/ray:2.47.0
-          ports:
-            - containerPort: 6379
-              name: gcs-server
-            - containerPort: 8265
-              name: dashboard
-            - containerPort: 10001
-              name: client
+          image: rayproject/ray:2.46.0-py310
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
-              cpu: "1"
-              memory: "2G"
-              ephemeral-storage: "9Gi"
+              cpu: "4"
+              memory: 40G
             requests:
-              cpu: "1"
-              memory: "2G"
-              ephemeral-storage: "9Gi"
-          volumeMounts:
-            - mountPath: /tmp/ray
-              name: ray-logs
-        volumes:
-          - name: ray-logs
-            emptyDir: {}
+              cpu: "4"
+              memory: 40G
+          ports:
+          - containerPort: 6379
+            name: gcs
+          - containerPort: 8265
+            name: dashboard
+          - containerPort: 10001
+            name: client
+          - containerPort: 8000
+            name: serve
+          - containerPort: 8888
+            name: grpc
   workerGroupSpecs:
-  - replicas: 1
+  - groupName: tpu-group
+    replicas: 1
     minReplicas: 0
     maxReplicas: 1
     numOfHosts: 2
-    groupName: tpu-group
     rayStartParams: {}
-      #num-cpus: "220"
     template:
-      metadata:
-        #labels:
-         # kueue.x-k8s.io/queue-name: dws-local-queue
-        annotations: {}
-          #provreq.kueue.x-k8s.io/maxRunDurationSeconds: "41600" # Max run time in sec
-          #kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
-          
       spec:
-        nodeSelector:
-          cloud.google.com/gke-nodepool: "v6e-2-4"
-          cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
-          cloud.google.com/gke-tpu-topology: 2x4
-        #nodeSelector:
-        #  cloud.google.com/gke-flex-start: "true"
-        #tolerations:
-        #  - key: "nvidia.com/gpu"
-        #    operator: "Exists"
-        #    effect: "NoSchedule"
         containers:
         - name: ray-worker
-          image: rayproject/ray-ml:2.9.0 #rayproject/ray:2.47.0-gpu
-          env:
-           - name: JAX_PLATFORMS
-             value: "tpu,cpu" 
-           - name: ENABLE_PJRT_COMPATIBILITY
-             value: "true"
-
+          image: rayproject/ray:2.46.0-py310
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
-                cpu: "100"
-                google.com/tpu: "4"
-                ephemeral-storage: 40G
-                memory: 200G
+              cpu: "24"
+              google.com/tpu: "4"
+              memory: 200G
             requests:
-                cpu: "100"
-                google.com/tpu: "4"
-                ephemeral-storage: 40G
-                memory: 200G
-          
+              cpu: "24"
+              google.com/tpu: "4"
+              memory: 200G
+          securityContext:
+           privileged: true
+          command:
+           #- bash
+           #- -c
+           #- |
+          env:
+          - name: NODE_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+          - name: VBAR_CONTROL_SERVICE_URL
+            value: $(NODE_IP):8353
+          - name: JAX_PLATFORMS
+            value: tpu,cpu
+          - name: ENABLE_PJRT_COMPATIBILITY
+            value: "true"
+          ports:
+          - containerPort: 8081
+            name: mxla
+        nodeSelector:
+          cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
+          cloud.google.com/gke-tpu-topology: 2x4

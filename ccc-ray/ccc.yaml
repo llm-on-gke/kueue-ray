@@ -1,0 +1,27 @@
+apiVersion: cloud.google.com/v1
+kind: ComputeClass
+metadata:
+  name: h200-ccc
+spec:
+  activeMigration:
+    optimizeRulePriority: false
+  priorities:
+  - machineType: a3-ultragpu-8g
+    storage:
+      localSSDCount: 32
+  - nodepools: ['h200-dws-ccc']
+  - gpu:
+      type: "nvidia-h200-141gb"
+      count: 8
+      driverVersion: "latest"
+  - flexStart:
+      enabled: true
+  - machineType: a3-ultragpu-8g
+    storage:
+      localSSDCount: 32
+  - nodepools: ['h200-spot-ccc']
+  - gpu:
+      type: "nvidia-h200-141gb"
+      count: 8
+      driverVersion: "latest"
+  - spot: true

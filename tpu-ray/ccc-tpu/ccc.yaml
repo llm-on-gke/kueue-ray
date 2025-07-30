@@ -8,6 +8,6 @@ spec:
     tpu:
       type: tpu-v6e-slice
       count: 4
-      topology: 4x4
+      topology: 2x4
   nodePoolAutoCreation:
     enabled: true

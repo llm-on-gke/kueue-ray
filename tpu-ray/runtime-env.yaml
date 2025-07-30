@@ -1,11 +1,8 @@
 py_modules: ["."]
-working_dir": "."
 py_executable": "uv run"
 setup_hook: runtime_env.uv_runtime_env_hook.hook #runtime_env.setup_hook 
-env_vars:
-  JAX_PLATFORMS: "" 
-  ENABLE_PJRT_COMPATIBILITY: "true"
+
+working_dir: "https://github.com/ray-project/kuberay/archive/master.zip"
 pip:
-  packages:
-    - -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
-    - --pre jax jaxlib libtpu-nightly requests -i https://us-python.pkg.dev/ml-oss-artifacts-published/jax/simple/
+      - jax[tpu]==0.6.1
+      - -f https://storage.googleapis.com/jax-releases/libtpu_releases.html

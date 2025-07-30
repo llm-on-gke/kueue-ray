@@ -8,7 +8,6 @@ gcloud container node-pools create v6e-2-4 \
     --tpu-topology=2x4 \
     --reservation-affinity=none \
     --enable-autoscaling \
-    --enable-queued-provisioning \
     --flex-start \
     --num-nodes 0 \
     --min-nodes=0 \

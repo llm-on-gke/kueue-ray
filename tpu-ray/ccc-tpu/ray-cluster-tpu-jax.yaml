@@ -1,0 +1,155 @@
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: example-cluster
+spec:
+  headGroupSpec:
+    rayStartParams:
+      {}
+    template:
+      spec:
+        imagePullSecrets:
+          []
+        serviceAccountName: default
+        containers:
+          - volumeMounts:
+            - mountPath: /tmp/ray
+              name: ray-logs
+            #- name: gcs-fuse-checkpoint
+             # mountPath: /checkpoint
+            name: ray-head
+            image: us-east1-docker.pkg.dev/gpu-launchpad-playground/gke-llm/ray-tpu-jax:latest
+            imagePullPolicy: IfNotPresent
+            resources:
+              limits:
+                cpu: "2"
+                ephemeral-storage: 32Gi
+                memory: 6G
+              requests:
+                cpu: "2"
+                ephemeral-storage: 32Gi
+                memory: 6G
+            securityContext:
+              {}
+            env:
+              - name: HF_HUB_ENABLE_HF_TRANSFER
+                value: "1"
+              #- name: HF_HOME
+              #  value: /checkpoint
+              - name: HUGGING_FACE_HUB_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: hf-secret
+                    key: hf_api_token
+              - name: JAX_PLATFORMS
+                value: "cpu"
+              - name: RAY_memory_monitor_refresh_ms
+                value: "0"
+              #- name: RAY_GRAFANA_IFRAME_HOST
+              #  value: http://${grafana_host}
+              - name: RAY_GRAFANA_HOST
+                value: http://grafana:80
+              - name: RAY_PROMETHEUS_HOST
+                value: http://frontend:9090
+            ports:
+              - containerPort: 6379
+                name: gcs
+              - containerPort: 8265
+                name: dashboard
+              - containerPort: 10001
+                name: client
+              - containerPort: 8000
+                name: serve
+              - containerPort: 8471
+                name: slicebuilder
+              - containerPort: 8081
+                name: mxla
+              - containerPort: 8888
+                name: grpc
+        volumes:
+          - emptyDir: {}
+            name: ray-logs
+          #- name: gcs-fuse-checkpoint
+          # csi:
+          #   driver: gcsfuse.csi.storage.gke.io
+          #    volumeAttributes:
+          #      bucketName: rick-llama-factory
+          #     mountOptions: "implicit-dirs,uid=1000,gid=1000,file-mode=777,dir-mode=777,rename-dir-limit=1000"
+      metadata:
+        annotations:
+          gke-gcsfuse/volumes: "true"
+        labels:
+          cloud.google.com/gke-ray-node-type: head
+          app.kubernetes.io/name: kuberay
+          app.kubernetes.io/instance: example-cluster
+
+  workerGroupSpecs:
+  - rayStartParams:
+      {}
+    replicas: 1
+    minReplicas: 1
+    maxReplicas: 1
+    numOfHosts: 2
+    groupName: workergroup
+    template:
+      spec:
+        imagePullSecrets:
+          []
+        serviceAccountName: default
+        containers:
+          - volumeMounts:
+            - mountPath: /tmp/ray
+              name: ray-logs
+            #- name: gcs-fuse-checkpoint
+            #  mountPath: /checkpoint
+            name: ray-worker
+            image: us-east1-docker.pkg.dev/gpu-launchpad-playground/gke-llm/ray-tpu-jax:latest
+            imagePullPolicy: IfNotPresent
+            resources:
+              limits:
+                cpu: "8"
+                ephemeral-storage: 32Gi
+                google.com/tpu: "4"
+                memory: 200G
+              requests:
+                cpu: "8"
+                ephemeral-storage: 32Gi
+                google.com/tpu: "4"
+                memory: 200G
+            securityContext:
+              {}
+            env:
+            - name: HF_HUB_ENABLE_HF_TRANSFER
+              value: "1"
+            #- name: HF_HOME
+            #  value: /checkpoint
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_api_token
+            - name: JAX_PLATFORMS
+              value: "tpu"
+            ports:
+              null
+        volumes:
+          - emptyDir: {}
+            name: ray-logs
+          #- name: gcs-fuse-checkpoint
+          #  csi:
+          #    driver: gcsfuse.csi.storage.gke.io
+          #    volumeAttributes:
+          #      bucketName: $YOUR_GCS_BUCKET
+          #      mountOptions: "implicit-dirs,uid=1000,gid=1000,file-mode=777,dir-mode=777,rename-dir-limit=1000"
+        nodeSelector:
+          cloud.google.com/compute-class: "ccc-tpu"
+          cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
+          cloud.google.com/gke-tpu-topology: 2x4
+          iam.gke.io/gke-metadata-server-enabled: "true"
+      metadata:
+        annotations:
+          gke-gcsfuse/volumes: "true"
+        labels:
+          cloud.google.com/gke-ray-node-type: worker
+          app.kubernetes.io/name: kuberay
+          app.kubernetes.io/instance: example-cluster
