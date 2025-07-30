@@ -39,6 +39,8 @@ spec:
     rayStartParams: {}
     template:
       spec:
+        hostNetwork: true
+        dnsPolicy: ClusterFirstWithHostNet
         containers:
         - name: ray-worker
           image: rayproject/ray:2.46.0-py310
