@@ -1,0 +1,33 @@
+apiVersion: cloud.google.com/v1
+kind: ComputeClass
+metadata:
+  name: ray-l4-1g
+ 
+spec:
+  activeMigration:
+    optimizeRulePriority: true
+  nodePoolAutoCreation:
+    enabled: true
+  priorities:
+  - gpu:
+      count: 1
+      driverVersion: default
+      type: nvidia-l4
+    machineFamily: g2
+    maxPodsPerNode: 32
+    storage:
+      bootDiskType: pd-ssd
+  - flexStart:
+      enabled: true
+      nodeRecycling:
+        leadTimeSeconds: 900
+      
+    gpu:
+      count: 1
+      driverVersion: default
+      type: nvidia-l4
+    machineFamily: g2
+    maxPodsPerNode: 32
+    storage:
+      bootDiskType: pd-ssd
+  whenUnsatisfiable: DoNotScaleUp
