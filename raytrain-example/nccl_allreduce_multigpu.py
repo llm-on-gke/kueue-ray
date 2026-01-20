@@ -48,7 +48,7 @@ class Worker:
 if __name__ == "__main__":
     ray.init(address="auto")
 
-    num_workers = 2 
+    num_workers = int(os.getenv("NUM_WORKERS", "1"))
     workers = []
     init_rets = []
 
